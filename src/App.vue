@@ -5,7 +5,8 @@ import {
   generateTimelineItems,
   normalizePageHash,
   generateActivitySelectOptions,
-  generateActivities
+  generateActivities,
+  generatePeriodSelectOptions
 } from './functions'
 
 import TheHeader from '@/components/TheHeader.vue'
@@ -13,8 +14,6 @@ import TheNav from '@/components/TheNav.vue'
 import TheTimeline from '@/pages/TheTimeline.vue'
 import TheActivities from '@/pages/TheActivities.vue'
 import TheProgress from '@/pages/TheProgress.vue'
-
-provide('updateTimelineItemActivitySeconds', updateTimelineItemActivitySeconds)
 
 const currentPage = ref(normalizePageHash())
 
@@ -43,8 +42,8 @@ function createActivity(activity) {
   activities.value.push(activity)
 }
 
-function setTimelineItemActivity(timelineItem, activity) {
-  timelineItem.activityId = activity.id
+function setTimelineItemActivity(timelineItem, activityId) {
+  timelineItem.activityId = activityId
 }
 
 function updateTimelineItemActivitySeconds(timelineItem, activitySeconds) {
@@ -63,6 +62,12 @@ function setActivitySecondsToComplete(activity, secondsToComplete) {
   activity.secondsToComplete = secondsToComplete
 }
 
+provide('updateTimelineItemActivitySeconds', updateTimelineItemActivitySeconds)
+provide('setTimelineItemActivity', setTimelineItemActivity)
+provide('periodSelectOptions', generatePeriodSelectOptions())
+provide('setActivitySecondsToComplete', setActivitySecondsToComplete)
+
+provide('activitySelectOptions', activitySelectOptions.value)
 provide('timelineItems', timelineItems.value)
 </script>
 
@@ -72,10 +77,7 @@ provide('timelineItems', timelineItems.value)
     <TheTimeline
       v-show="currentPage === PAGE_TIMELINE"
       :timeline-items="timelineItems"
-      :activities="activities"
-      :activity-select-options="activitySelectOptions"
       :current-page="currentPage"
-      @set-timeline-item-activity="setTimelineItemActivity"
       ref="timeline"
     />
     <TheActivities
@@ -83,7 +85,6 @@ provide('timelineItems', timelineItems.value)
       :activities="activities"
       @delete-activity="deleteActivity"
       @create-activity="createActivity"
-      @set-activity-seconds-to-complete="setActivitySecondsToComplete"
     />
     <TheProgress v-show="currentPage === PAGE_PROGRESS" />
   </main>
