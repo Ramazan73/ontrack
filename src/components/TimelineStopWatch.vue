@@ -8,7 +8,8 @@ import {
 } from '@/constants'
 import BaseButton from '@/components/BaseButton.vue'
 import { isTimelineItemValid } from '@/validators'
-import { formatSeconds } from '@/functions'
+import { updateTimelineItemActivitySecondsKey } from '@/keys'
+import { formatSeconds, currentHour } from '@/functions'
 import { ref, inject } from 'vue'
 
 const props = defineProps({
@@ -19,9 +20,9 @@ const props = defineProps({
   }
 })
 
-const updateTimelineItemActivitySeconds = inject('updateTimelineItemActivitySeconds')
+const updateTimelineItemActivitySeconds = inject(updateTimelineItemActivitySecondsKey)
 
-const isStartButtonDisabled = props.timelineItem.hour !== new Date().getHours()
+const isStartButtonDisabled = props.timelineItem.hour !== currentHour()
 
 const seconds = ref(props.timelineItem.activitySeconds)
 const isRunning = ref(false)

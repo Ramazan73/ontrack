@@ -1,4 +1,5 @@
 <script setup>
+import { currentHour } from '@/functions'
 import { isHourValid } from '@/validators'
 
 const props = defineProps({
@@ -10,9 +11,7 @@ const props = defineProps({
 })
 const classes = [
   'absolute -top-4 left-1/2 -translate-x-1/2 rounded px-2 font-mono text-lg',
-  props.hour !== new Date().getHours()
-    ? 'bg-gray-100 text-gray-500'
-    : 'bg-purple-900 font-black text-white'
+  props.hour !== currentHour() ? 'bg-gray-100 text-gray-500' : 'bg-purple-900 font-black text-white'
 ]
 const formattedHour = `${props.hour.toString().padStart(2, 0)}:00`
 </script>
