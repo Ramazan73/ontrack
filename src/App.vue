@@ -1,12 +1,14 @@
 <script setup>
-import { ref, computed, provide, readonly } from 'vue'
+import { ref, provide, readonly } from 'vue'
 import { PAGE_TIMELINE, PAGE_ACTIVITIES, PAGE_PROGRESS } from './constants'
+import { generateTimelineItems, generatePeriodSelectOptions } from './functions'
 import {
-  generateTimelineItems,
-  generateActivitySelectOptions,
-  generateActivities,
-  generatePeriodSelectOptions
-} from './functions'
+  deleteActivity,
+  createActivity,
+  setActivitySecondsToComplete,
+  activitySelectOptions,
+  activities
+} from '@/activities'
 
 import { currentPage, timelineRef } from '@/router'
 import * as keys from '@/keys'
@@ -17,20 +19,6 @@ import TheTimeline from '@/pages/TheTimeline.vue'
 import TheActivities from '@/pages/TheActivities.vue'
 import TheProgress from '@/pages/TheProgress.vue'
 
-function deleteActivity(activity) {
-  timelineItems.value.forEach((timelineItem) => {
-    if (timelineItem.activityId === activity.id) {
-      timelineItem.activityId = null
-      timelineItem.activitySeconds = 0
-    }
-  })
-  activities.value.splice(activities.value.indexOf(activity), 1)
-}
-
-function createActivity(activity) {
-  activities.value.push(activity)
-}
-
 function setTimelineItemActivity(timelineItem, activityId) {
   timelineItem.activityId = activityId
 }
@@ -39,15 +27,7 @@ function updateTimelineItemActivitySeconds(timelineItem, activitySeconds) {
   timelineItem.activitySeconds += activitySeconds
 }
 
-const activities = ref(generateActivities())
-
 const timelineItems = ref(generateTimelineItems(activities.value))
-
-const activitySelectOptions = computed(() => generateActivitySelectOptions(activities.value))
-
-function setActivitySecondsToComplete(activity, secondsToComplete) {
-  activity.secondsToComplete = secondsToComplete || 0
-}
 
 provide(keys.updateTimelineItemActivitySecondsKey, updateTimelineItemActivitySeconds)
 provide(keys.setTimelineItemActivityKey, setTimelineItemActivity)
@@ -56,8 +36,8 @@ provide(keys.createActivityKey, createActivity)
 provide(keys.deleteActivityKey, deleteActivity)
 
 provide(keys.periodSelectOptionsKey, readonly(generatePeriodSelectOptions()))
-provide(keys.activitySelectOptionsKey, readonly(activitySelectOptions.value))
-provide(keys.timelineItemsKey, readonly(timelineItems.value))
+provide(keys.activitySelectOptionsKey, readonly(activitySelectOptions)) // to keep it reactive pass without .value
+provide(keys.timelineItemsKey, readonly(timelineItems)) // to keep it reactive pass without .value
 </script>
 
 <template>
