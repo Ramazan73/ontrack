@@ -1,14 +1,18 @@
 <script setup>
-import { ref, provide, readonly } from 'vue'
+import { provide, readonly } from 'vue'
 import { PAGE_TIMELINE, PAGE_ACTIVITIES, PAGE_PROGRESS } from './constants'
-import { generateTimelineItems, generatePeriodSelectOptions } from './functions'
+import { generatePeriodSelectOptions } from './functions'
 import {
   deleteActivity,
   createActivity,
   setActivitySecondsToComplete,
-  activitySelectOptions,
-  activities
+  activitySelectOptions
 } from '@/activities'
+import {
+  setTimelineItemActivity,
+  updateTimelineItemActivitySeconds,
+  resetTimelineItemActivities
+} from '@/timeline-items'
 
 import { currentPage, timelineRef } from '@/router'
 import * as keys from '@/keys'
@@ -19,36 +23,24 @@ import TheTimeline from '@/pages/TheTimeline.vue'
 import TheActivities from '@/pages/TheActivities.vue'
 import TheProgress from '@/pages/TheProgress.vue'
 
-function setTimelineItemActivity(timelineItem, activityId) {
-  timelineItem.activityId = activityId
-}
-
-function updateTimelineItemActivitySeconds(timelineItem, activitySeconds) {
-  timelineItem.activitySeconds += activitySeconds
-}
-
-const timelineItems = ref(generateTimelineItems(activities.value))
-
 provide(keys.updateTimelineItemActivitySecondsKey, updateTimelineItemActivitySeconds)
 provide(keys.setTimelineItemActivityKey, setTimelineItemActivity)
 provide(keys.setActivitySecondsToCompleteKey, setActivitySecondsToComplete)
 provide(keys.createActivityKey, createActivity)
-provide(keys.deleteActivityKey, deleteActivity)
+provide(keys.deleteActivityKey, (activity) => {
+  resetTimelineItemActivities(activity)
+  deleteActivity(activity)
+})
 
 provide(keys.periodSelectOptionsKey, readonly(generatePeriodSelectOptions()))
 provide(keys.activitySelectOptionsKey, readonly(activitySelectOptions)) // to keep it reactive pass without .value
-provide(keys.timelineItemsKey, readonly(timelineItems)) // to keep it reactive pass without .value
 </script>
 
 <template>
   <TheHeader />
   <main class="flex flex-grow flex-col">
-    <TheTimeline
-      v-show="currentPage === PAGE_TIMELINE"
-      :timeline-items="timelineItems"
-      ref="timelineRef"
-    />
-    <TheActivities v-show="currentPage === PAGE_ACTIVITIES" :activities="activities" />
+    <TheTimeline v-show="currentPage === PAGE_TIMELINE" ref="timelineRef" />
+    <TheActivities v-show="currentPage === PAGE_ACTIVITIES" />
     <TheProgress v-show="currentPage === PAGE_PROGRESS" />
   </main>
 
