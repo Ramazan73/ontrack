@@ -1,33 +1,47 @@
 import { ref } from 'vue'
 import { activities } from '@/activities'
-import { HOURS_IN_DAY } from '@/constants'
+import { HOURS_IN_DAY, MIDNIGHT_HOUR } from '@/constants'
+import { currentHour } from '@/functions'
+
+export const timelineItemRefs = ref([])
 
 export const timelineItems = ref(generateTimelineItems())
 
-export function setTimelineItemActivity(timelineItem, activityId) {
-  timelineItem.activityId = activityId
-}
-
-export function updateTimelineItemActivitySeconds(timelineItem, activitySeconds) {
-  timelineItem.activitySeconds += activitySeconds
+export function updateTimelineItem(timelineItem, fields) {
+  return Object.assign(timelineItem, fields)
 }
 
 export function resetTimelineItemActivities(activity) {
-  timelineItems.value.forEach((timelineItem) => {
-    if (timelineItem.activityId === activity.id) {
-      timelineItem.activityId = null
-      timelineItem.activitySeconds = 0
-    }
-  })
+  timelineItems.value
+    .filter((timelineItem) => hasActivity(timelineItem, activity))
+    .forEach((timelineItem) =>
+      updateTimelineItem(timelineItem, {
+        activityId: (timelineItem.activityId = null),
+        activitySeconds: (timelineItem.activitySeconds = 0)
+      })
+    )
 }
 
 export function getTotalActivitySeconds(activity) {
   return timelineItems.value
-    .filter((timelineItem) => timelineItem.activityId === activity.id)
+    .filter((timelineItem) => hasActivity(timelineItem, activity))
     .reduce(
       (totalSeconds, timelineItem) => Math.round(timelineItem.activitySeconds + totalSeconds),
       0
     )
+}
+
+export function scrollToCurrentHour(isSmooth = true) {
+  scrollToHour(currentHour(), isSmooth)
+}
+export function scrollToHour(hour, isSmooth = true) {
+  const el = hour === MIDNIGHT_HOUR ? document.body : timelineItemRefs.value[hour - 1].$el
+
+  el.scrollIntoView({ behavior: isSmooth ? 'smooth' : 'instant' })
+}
+
+function hasActivity(timelineItem, activity) {
+  return timelineItem.activityId === activity.id
 }
 
 function generateTimelineItems() {

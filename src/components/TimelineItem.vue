@@ -1,9 +1,8 @@
 <script setup>
-import { inject } from 'vue'
-
 import { isTimelineItemValid, isUndefined } from '@/validators'
 import BaseSelect from '@/components/BaseSelect.vue'
-import { setTimelineItemActivityKey, activitySelectOptionsKey } from '@/keys'
+import { updateTimelineItem } from '@/timeline-items'
+import { activitySelectOptions } from '@/activities'
 
 import TimelineHour from '@/components/TimelineHour.vue'
 import TimelineStopWatch from '@/components/TimelineStopWatch.vue'
@@ -19,9 +18,6 @@ defineProps({
 const emit = defineEmits({
   scrollToHour: isUndefined
 })
-
-const setTimelineItemActivity = inject(setTimelineItemActivityKey)
-const activitySelectOptions = inject(activitySelectOptionsKey)
 </script>
 
 <template>
@@ -31,7 +27,7 @@ const activitySelectOptions = inject(activitySelectOptionsKey)
       :placeholder="'Rest'"
       :selected="timelineItem.activityId"
       :options="activitySelectOptions"
-      @select="setTimelineItemActivity(timelineItem, $event)"
+      @select="updateTimelineItem(timelineItem, { activityId: $event })"
     />
     <TimelineStopWatch :timeline-item="timelineItem" />
   </li>

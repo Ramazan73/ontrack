@@ -4,14 +4,8 @@ import { isPageValid } from '@/validators'
 
 export const currentPage = ref(normalizePageHash())
 
-export const timelineRef = ref()
-
 export function navigate(page) {
-  if (currentPage.value === PAGE_TIMELINE && page === PAGE_TIMELINE) {
-    timelineRef.value.scrollToHour()
-  } else if (page !== PAGE_TIMELINE) {
-    document.body.scrollIntoView({ behavior: 'smooth' })
-  }
+  document.body.scrollIntoView({ behavior: 'smooth' })
 
   currentPage.value = page
 }
